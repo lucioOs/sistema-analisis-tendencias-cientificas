@@ -1,0 +1,6 @@
+PRUEBA 2 - Identificación de patrones temáticos
+- Docs: 120000
+- Features (TF-IDF): 100000
+- Sparsity: 0.9979
+- Clusters detectados: 5
+- Top términos por tema: P2_top_terms.csv

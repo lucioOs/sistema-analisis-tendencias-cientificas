@@ -1,0 +1,11 @@
+PRUEBA HOLT-WINTERS (EVIDENCIA)
+- Keyword: llm
+- Docs totales (parquet): 617465
+- Docs que contienen keyword: 22331
+- Meses usados: 60 | Train: 54 | Test: 6
+- HW: trend=add, seasonal=add, seasonal_periods=12, damped=False
+- MAE: 285.429
+- RMSE: 434.188
+- CSV: evidence\P5_holtwinters\HW_llm_20260212_122316\P5_hw_real_vs_pred.csv
+- PNG: evidence\P5_holtwinters\HW_llm_20260212_122316\P5_hw_plot.png
+- JSON: evidence\P5_holtwinters\HW_llm_20260212_122316\P5_hw_summary.json

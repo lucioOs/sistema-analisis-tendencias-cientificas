@@ -1,0 +1,5 @@
+PRUEBA 1 - Procesamiento y preparación del texto
+- Registros (clean usado): 120000
+- Longitud promedio text_clean: 1262.53
+- Tamaño vocabulario (CountVectorizer): 138434
+- Evidencia antes/después: P1_before_after.csv

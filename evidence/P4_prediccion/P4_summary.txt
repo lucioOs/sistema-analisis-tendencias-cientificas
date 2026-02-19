@@ -1,0 +1,3 @@
+PRUEBA 4 - Predicción (backtesting)
+- Años test: [2022, 2023, 2024, 2025, 2026]
+- Evidencia métricas MAE/RMSE + real vs pred: P4_backtesting_metrics.csv

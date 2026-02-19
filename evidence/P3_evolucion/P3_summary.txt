@@ -1,0 +1,4 @@
+PRUEBA 3 - Evolución temporal de los temas
+- Rango años: 1993 - 2026
+- Evidencia tabla año×tema: P3_year_topic_counts.csv
+- Evidencia pendientes (share) + clasificación: P3_slopes.csv
