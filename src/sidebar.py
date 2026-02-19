@@ -5,7 +5,7 @@ import sys
 import time
 from datetime import date
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 import pandas as pd
 import streamlit as st
@@ -32,39 +32,12 @@ def _clear_streamlit_cache() -> None:
         pass
 
 
-def _safe_read_parquet(path: Path) -> pd.DataFrame:
-    try:
-        if not path.exists():
-            return pd.DataFrame()
-        return pd.read_parquet(path)
-    except Exception:
-        return pd.DataFrame()
-
-
-def _get_macro_areas_from_data() -> List[str]:
-    processed = Path("data/processed")
-
-    df = _safe_read_parquet(processed / "macro_trends_full.parquet")
-    if not df.empty and "macro_area" in df.columns:
-        return sorted(a for a in df["macro_area"].dropna().astype(str).unique() if a.strip())
-
-    df = _safe_read_parquet(processed / "clean.parquet")
-    if not df.empty and "macro_area" in df.columns:
-        return sorted(a for a in df["macro_area"].dropna().astype(str).unique() if a.strip())
-
-    df = _safe_read_parquet(Path(LIVE_DATASET))
-    if not df.empty and "macro_area" in df.columns:
-        return sorted(a for a in df["macro_area"].dropna().astype(str).unique() if a.strip())
-
-    return []
-
-
 def _run_live_update(
     days_back: int,
     api_page_size: int,
     api_max_total: int,
     timeout_sec: int = 1800,
-) -> Tuple[int, str, List[str]]:
+) -> Tuple[int, str, list[str]]:
     cmd = [
         sys.executable,
         "-m",
