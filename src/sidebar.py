@@ -32,6 +32,18 @@ def _clear_streamlit_cache() -> None:
         pass
 
 
+
+
+def _sidebar_help_html() -> str:
+    # Canonical: la macro-área se elige en las vistas principales (Histórico/Live).
+    return (
+        '<div class="card">'
+        '<div style="font-weight:700; margin-bottom:0.2rem;">🧭 Cómo usar esta barra</div>'
+        '<div class="muted">1) Define tipo de análisis. 2) Ajusta periodo. '
+        '3) La macro-área se selecciona en el panel principal.</div>'
+        '</div>'
+    )
+
 def _run_live_update(
     days_back: int,
     api_page_size: int,
@@ -86,12 +98,7 @@ def render_sidebar() -> Dict[str, Any]:
 
     st.divider()
 
-    st.markdown("""
-    <div class="card">
-      <div style="font-weight:700; margin-bottom:0.2rem;">🧭 Cómo usar esta barra</div>
-      <div class="muted">1) Define tipo de análisis. 2) Ajusta periodo. 3) La macro-área se selecciona en el panel principal.</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(_sidebar_help_html(), unsafe_allow_html=True)
 
     # -----------------------------
     # Acción (token consistente)
