@@ -51,27 +51,21 @@ def _period_count_fallback(df: pd.DataFrame, freq: str) -> int:
 # Widgets públicos (exports)
 # =========================
 def top_guide() -> None:
-    """Caja superior de guía rápida (la usa streamlit_app.py)."""
-    st.markdown("## Panel de Tendencias")
-    with st.container():
-        st.markdown(
-            """
-            <div style="
-                background: rgba(220,220,220,0.9);
-                color: #111;
-                padding: 14px 16px;
-                border-radius: 12px;
-                margin-top: 4px;
-                margin-bottom: 10px;
-            ">
-              <b>Guía rápida</b><br>
-              1) Elige <b>Histórico</b> (largo plazo) o <b>Live</b> (reciente).<br>
-              2) Usa <b>Creciendo</b>, <b>Bajando</b>, <b>Predicción</b> o <b>Comparar</b>.<br>
-              3) Si algo sale vacío, normalmente el periodo elegido es muy corto o hay poca historia.
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+    """Cabecera amigable para orientar al usuario sin ruido técnico."""
+    st.markdown(
+        """
+        <div class="app-hero">
+          <div style="font-size:1.25rem; font-weight:700; margin-bottom: 0.35rem;">🔎 Panel de Tendencias Científicas</div>
+          <div class="muted" style="margin-bottom: 0.25rem;">Visualiza evolución histórica, cambios recientes y predicciones por macro-área.</div>
+          <div class="muted">
+            <b>Paso 1:</b> Elige <b>Histórico</b> o <b>Live</b> en el menú.<br>
+            <b>Paso 2:</b> Ajusta macro-área, periodo y tipo de análisis en la barra lateral.<br>
+            <b>Paso 3:</b> Interpreta KPIs, gráficas y tabla de resultados.
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def show_kpis(df: pd.DataFrame, freq: str) -> None:
