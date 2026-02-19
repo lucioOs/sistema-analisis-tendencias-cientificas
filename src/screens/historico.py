@@ -201,10 +201,11 @@ def screen_historico(
     df_raw = _apply_year_cap(df_raw, int(HIST_YEARS_KEEP))
     df_raw = limit_df(df_raw, MAX_ROWS_TEXT)
 
+    st.subheader("Histórico")
+
+    # Macro-área se controla desde el sidebar
     df_view = _filter_macro(df_raw, macro_selected)
     df_view = _apply_date_range(df_view, start_date, end_date, date_col="date")
-
-    st.subheader("Histórico")
 
     with st.expander("Filtros activos", expanded=False):
         st.write(f"Macro-área: **{macro_selected}**")
@@ -222,6 +223,7 @@ def screen_historico(
         return
 
     show_kpis(df_view, freq)
+
     render_wordcloud(
     df_view,
     "Nube de palabras (Histórico)",
@@ -307,9 +309,11 @@ def screen_historico(
         st.dataframe(show, use_container_width=True, hide_index=True)
         download_table(show, filename_prefix=f"historico_{label_need}_macro")
 
-        macro_list = sub["macro_area"].tolist()
-        macro_pick = st.selectbox("Macro-área para ver su tendencia", macro_list, key="hist_macro_pick")
+        if macro_selected == "Todas":
+            st.info("Selecciona una macro-área específica en el sidebar para ver su tendencia.")
+            return
 
+        macro_pick = macro_selected
         d = df_macro[df_macro["macro_area"] == macro_pick].sort_values("period")
         d = _filter_macro_period_df(d, start_date, end_date, freq=freq)
         if d.empty:
@@ -379,15 +383,12 @@ def screen_historico(
         st.error("No existe macro_trends_forecast.parquet. Ejecuta: python -m src.forecast_trends")
         return
 
-    if macro_selected != "Todas":
-        macro_pick = macro_selected
-        st.caption(f"Macro-área seleccionada: **{macro_pick}**")
-    else:
-        macro_list = sorted(df_fc["macro_area"].dropna().astype(str).unique().tolist())
-        if not macro_list:
-            st.info("No hay macro-áreas disponibles para predicción.")
-            return
-        macro_pick = st.selectbox("Macro-área a predecir", macro_list, key="hist_pred_macro")
+    if macro_selected == "Todas":
+        st.info("Selecciona una macro-área específica en el sidebar para ejecutar la predicción.")
+        return
+
+    macro_pick = macro_selected
+    st.caption(f"Macro-área seleccionada: **{macro_pick}**")
 
     d_hist = df_macro[df_macro["macro_area"] == macro_pick].sort_values("period")
     d_fc = df_fc[df_fc["macro_area"] == macro_pick].sort_values("period")

@@ -4,6 +4,7 @@ PRUEBA: Holt-Winters (Exponential Smoothing) sobre datos reales del proyecto.
 
 Qué hace:
 1) Carga data/processed/clean.parquet (columnas: date, text_clean, ...)
+   o genera un dataset sintético (--synthetic).
 2) Construye una serie temporal mensual de "conteos" a partir de un filtro:
    - Por defecto: cuenta cuántos documentos contienen una palabra clave (keyword) en text_clean.
 3) Toma una ventana de N meses (default 60), separa Train/Test (default 90/10).
@@ -13,13 +14,13 @@ Qué hace:
 
 Ejecutar:
 (.venv) python tests/test_holtwinters.py --keyword llm
+(.venv) python tests/test_holtwinters.py --synthetic --keyword llm
 """
 
 from __future__ import annotations
 
 import argparse
 import json
-import os
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
@@ -68,6 +69,26 @@ def now_stamp() -> str:
 
 def rmse(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     return float(np.sqrt(mean_squared_error(y_true, y_pred)))
+
+
+def build_synthetic_dataset(months: int = 84, docs_per_month: int = 20, keyword: str = "llm") -> pd.DataFrame:
+    """Genera un dataset sintético reproducible con columnas date/text_clean."""
+    rng = np.random.default_rng(seed=42)
+    periods = max(months, 36)
+    base_dates = pd.date_range("2018-01-31", periods=periods, freq="ME")
+
+    rows: list[dict[str, str]] = []
+    for i, d in enumerate(base_dates):
+        # tendencia + estacionalidad suave + ruido
+        score = 0.35 + (i / periods) * 0.45 + 0.15 * np.sin(2 * np.pi * i / 12)
+        prob_keyword = float(np.clip(score, 0.05, 0.95))
+
+        for _ in range(max(5, docs_per_month)):
+            has_keyword = rng.random() < prob_keyword
+            text = f"paper about {keyword} and scientific trends" if has_keyword else "paper about optimization and systems"
+            rows.append({"date": d, "text_clean": text})
+
+    return pd.DataFrame(rows)
 
 
 def normalize_series_monthly(
@@ -135,6 +156,11 @@ def main() -> int:
         help="Ruta a clean.parquet",
     )
     ap.add_argument(
+        "--synthetic",
+        action="store_true",
+        help="Usar dataset sintético (sin dependencia de data/processed/clean.parquet).",
+    )
+    ap.add_argument(
         "--keyword",
         default="llm",
         help="Palabra clave para construir la serie (conteo mensual de docs que la contienen).",
@@ -184,26 +210,34 @@ def main() -> int:
     args = ap.parse_args()
 
     parquet_path = Path(args.parquet)
-    if not parquet_path.exists():
-        print(f"[ERROR] No existe: {parquet_path}")
-        return 2
 
     print("=== PRUEBA HOLT-WINTERS ===")
-    print(f"Parquet: {parquet_path}")
     print(f"Keyword: {args.keyword}")
     print(f"Ventana (meses): {args.months} | Test (meses): {args.test_months}")
     print(f"HW: trend={args.trend} seasonal={args.seasonal} damped={args.damped}")
     print(f"seasonal_periods={args.seasonal_periods}")
 
-    # Carga (con límite opcional)
-    # Nota: leer por completo puede ser pesado; el limit reduce tiempo para evidencia.
-    df = pd.read_parquet(parquet_path)
-    rows_total = int(df.shape[0])
-    if args.rows_limit and args.rows_limit > 0 and rows_total > args.rows_limit:
-        df = df.sample(n=args.rows_limit, random_state=42).reset_index(drop=True)
-        print(f"[INFO] Submuestreo aplicado: {args.rows_limit} filas (de {rows_total}).")
+    if args.synthetic:
+        print("[INFO] Modo sintético activado.")
+        df = build_synthetic_dataset(months=max(args.months + 24, 60), keyword=args.keyword)
+        rows_total = int(df.shape[0])
+        parquet_path_str = "<synthetic>"
     else:
-        print(f"[INFO] Filas leídas: {rows_total}")
+        if not parquet_path.exists():
+            print(f"[ERROR] No existe: {parquet_path}")
+            print("[HINT] Usa --synthetic para ejecutar la prueba sin dataset local.")
+            return 2
+
+        print(f"Parquet: {parquet_path}")
+        df = pd.read_parquet(parquet_path)
+        rows_total = int(df.shape[0])
+        parquet_path_str = str(parquet_path)
+
+        if args.rows_limit and args.rows_limit > 0 and rows_total > args.rows_limit:
+            df = df.sample(n=args.rows_limit, random_state=42).reset_index(drop=True)
+            print(f"[INFO] Submuestreo aplicado: {args.rows_limit} filas (de {rows_total}).")
+        else:
+            print(f"[INFO] Filas leídas: {rows_total}")
 
     # Serie por keyword
     raw_series, rows_matched = build_keyword_count_series(df, args.keyword)
@@ -306,7 +340,7 @@ def main() -> int:
     # JSON resumen
     rep = HWReport(
         keyword=args.keyword,
-        parquet_path=str(parquet_path),
+        parquet_path=parquet_path_str,
         rows_total=int(rows_total),
         rows_matched=int(rows_matched),
         months_used=int(months_used),
@@ -333,7 +367,7 @@ def main() -> int:
             [
                 "PRUEBA HOLT-WINTERS (EVIDENCIA)",
                 f"- Keyword: {args.keyword}",
-                f"- Docs totales (parquet): {rows_total}",
+                f"- Docs totales (dataset): {rows_total}",
                 f"- Docs que contienen keyword: {rows_matched}",
                 f"- Meses usados: {months_used} | Train: {len(train)} | Test: {len(test)}",
                 f"- HW: trend={args.trend}, seasonal={args.seasonal}, seasonal_periods={args.seasonal_periods}, damped={args.damped}",
