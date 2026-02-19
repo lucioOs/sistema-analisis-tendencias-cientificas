@@ -34,12 +34,28 @@ def _clear_streamlit_cache() -> None:
 
 
 
+
+
+def _safe_read_parquet(path: Path) -> pd.DataFrame:
+    try:
+        if not path.exists():
+            return pd.DataFrame()
+        return pd.read_parquet(path)
+    except Exception:
+        return pd.DataFrame()
+
+
+def _get_macro_areas_from_data() -> list[str]:
+    processed = Path("data/processed")
+
+
 def _sidebar_help_html() -> str:
     # Canonical: la macro-área se elige en las vistas principales (Histórico/Live).
     return (
         '<div class="card">'
         '<div style="font-weight:700; margin-bottom:0.2rem;">🧭 Cómo usar esta barra</div>'
         '<div class="muted">1) Define tipo de análisis. 2) Ajusta periodo. '
+        '3) Ajusta opciones avanzadas solo si lo necesitas.</div>'
         '3) La macro-área se selecciona en el panel principal.</div>'
         '</div>'
     )
@@ -101,8 +117,36 @@ def render_sidebar() -> Dict[str, Any]:
     st.markdown(_sidebar_help_html(), unsafe_allow_html=True)
 
     # -----------------------------
+    # Macro-área (filtro global)
+    # -----------------------------
+    st.subheader("1) Macro-área")
+    macro_areas = _get_macro_areas_from_data()
+    options = ["Todas"] + macro_areas if macro_areas else ["Todas"]
+
+    if "macro_area_selected" not in st.session_state:
+        st.session_state.macro_area_selected = "Todas"
+
+    try:
+        default_idx = options.index(st.session_state.macro_area_selected)
+    except ValueError:
+        default_idx = 0
+        st.session_state.macro_area_selected = "Todas"
+
+    macro_selected = st.selectbox(
+        "Macro-área a analizar",
+        options,
+        index=default_idx,
+        key="sb_macro_area",
+        help="Controla Histórico, Live, Tendencias y Predicción.",
+    )
+    st.session_state.macro_area_selected = macro_selected
+
+    st.divider()
+
+    # -----------------------------
     # Acción (token consistente)
     # -----------------------------
+    st.subheader("2) Tipo de análisis")
     st.subheader("1) Tipo de análisis")
     action_ui = st.radio(
         "Selecciona análisis",
@@ -126,6 +170,7 @@ def render_sidebar() -> Dict[str, Any]:
     # -----------------------------
     # Periodo (frecuencia + rango opcional)
     # -----------------------------
+    st.subheader("3) Periodo")
     st.subheader("2) Periodo")
 
     freq_label = st.selectbox(
@@ -164,6 +209,7 @@ def render_sidebar() -> Dict[str, Any]:
     # -----------------------------
     # Opciones (nube + knobs)
     # -----------------------------
+    st.subheader("4) Opciones visuales")
     st.subheader("3) Opciones visuales")
 
     cloud_ui = st.selectbox(

@@ -276,6 +276,9 @@ def screen_live(
     df_raw_full = enforce_schema(df_raw_full, min_text_len=20, drop_duplicates=True)
 
     # =========================================================
+    # 2) Macro-área se controla desde el sidebar
+    # =========================================================
+    st.subheader("Live (dinámico)")
     # 2) Selector principal de macro-área (afecta nube y gráficas)
     # =========================================================
     macro_options = ["Todas"]
