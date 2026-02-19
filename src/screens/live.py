@@ -276,8 +276,29 @@ def screen_live(
     df_raw_full = enforce_schema(df_raw_full, min_text_len=20, drop_duplicates=True)
 
     # =========================================================
-    # 2) Macro filtro global
+    # 2) Selector principal de macro-área (afecta nube y gráficas)
     # =========================================================
+    macro_options = ["Todas"]
+    if "macro_area" in df_raw_full.columns:
+        vals = sorted(a for a in df_raw_full["macro_area"].dropna().astype(str).unique() if a.strip())
+        macro_options.extend(vals)
+
+    default_macro = st.session_state.get(
+        "live_main_macro",
+        macro_selected if macro_selected in macro_options else "Todas",
+    )
+    if default_macro not in macro_options:
+        default_macro = "Todas"
+
+    st.subheader("Live (dinámico)")
+    st.markdown("**Macro-área (afecta nube y gráficas):**")
+    macro_selected = st.selectbox(
+        "Macro-área para filtrar visualización",
+        options=macro_options,
+        index=macro_options.index(default_macro),
+        key="live_main_macro",
+    )
+
     df_view_full = _filter_macro(df_raw_full, macro_selected)
 
     # =========================================================
@@ -296,8 +317,6 @@ def screen_live(
             effective_window = int(live_update_days or 14)
 
         df_view_full = _apply_live_window(df_view_full, days=effective_window)
-
-    st.subheader("Live (dinámico)")
 
     with st.expander("Filtros activos", expanded=False):
         st.write(f"Macro-área: **{macro_selected}**")
