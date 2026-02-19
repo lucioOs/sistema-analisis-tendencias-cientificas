@@ -113,39 +113,19 @@ def render_sidebar() -> Dict[str, Any]:
 
     st.divider()
 
-    # -----------------------------
-    # Macro-área (filtro global)
-    # -----------------------------
-    st.subheader("Macro-área (filtro PLN)")
-    macro_areas = _get_macro_areas_from_data()
-    options = ["Todas"] + macro_areas if macro_areas else ["Todas"]
-
-    if "macro_area_selected" not in st.session_state:
-        st.session_state.macro_area_selected = "Todas"
-
-    try:
-        default_idx = options.index(st.session_state.macro_area_selected)
-    except ValueError:
-        default_idx = 0
-        st.session_state.macro_area_selected = "Todas"
-
-    macro_selected = st.selectbox(
-        "Selecciona macro-área",
-        options,
-        index=default_idx,
-        key="sb_macro_area",
-        help="Controla Histórico, Live, Tendencias y Predicción.",
-    )
-    st.session_state.macro_area_selected = macro_selected
-
-    st.divider()
+    st.markdown("""
+    <div class="card">
+      <div style="font-weight:700; margin-bottom:0.2rem;">🧭 Cómo usar esta barra</div>
+      <div class="muted">1) Define tipo de análisis. 2) Ajusta periodo. 3) Usa opciones avanzadas solo si lo necesitas.</div>
+    </div>
+    """, unsafe_allow_html=True)
 
     # -----------------------------
     # Acción (token consistente)
     # -----------------------------
-    st.subheader("Acción")
+    st.subheader("1) Tipo de análisis")
     action_ui = st.radio(
-        "¿Qué quieres ver?",
+        "Selecciona análisis",
         ["Predicción", "Creciendo", "Bajando", "Se mantiene", "Comparar"],
         index=0,
         key="sb_action_ui",
@@ -166,10 +146,10 @@ def render_sidebar() -> Dict[str, Any]:
     # -----------------------------
     # Periodo (frecuencia + rango opcional)
     # -----------------------------
-    st.subheader("Periodo")
+    st.subheader("2) Periodo")
 
     freq_label = st.selectbox(
-        "Ver cambios por",
+        "Agrupar resultados por",
         ["Semanas", "Meses", "Días"],
         index=0,
         key="sb_freq_label",
@@ -177,7 +157,7 @@ def render_sidebar() -> Dict[str, Any]:
     freq = "W" if freq_label == "Semanas" else ("M" if freq_label == "Meses" else "D")
 
     min_d, max_d = _safe_date_range_from_hist()
-    use_range = st.toggle("Elegir rango de fechas", value=False, key="sb_use_range")
+    use_range = st.toggle("Usar rango de fechas personalizado", value=False, key="sb_use_range")
 
     start_date: Optional[date] = None
     end_date: Optional[date] = None
@@ -204,10 +184,10 @@ def render_sidebar() -> Dict[str, Any]:
     # -----------------------------
     # Opciones (nube + knobs)
     # -----------------------------
-    st.subheader("Opciones")
+    st.subheader("3) Opciones visuales")
 
     cloud_ui = st.selectbox(
-        "Tipo de nube",
+        "Nube de palabras",
         ["Destacados (TF-IDF)", "Frecuencia"],
         index=0,
         key="sb_cloud_mode",
@@ -215,7 +195,7 @@ def render_sidebar() -> Dict[str, Any]:
     )
     cloud_mode = "tfidf" if cloud_ui.startswith("Destacados") else "freq"
 
-    with st.expander("Ajustes", expanded=False):
+    with st.expander("Ajustes avanzados", expanded=False):
         ngram_max = st.selectbox("Detectar frases de", [1, 2, 3], index=1, key="sb_ngram")
         min_df = st.slider("Frecuencia mínima (min_df)", 1, 10, 2, key="sb_min_df")
 
@@ -243,7 +223,6 @@ def render_sidebar() -> Dict[str, Any]:
         st.write(f"App: {APP_TITLE}")
         st.write(f"Pantalla: {st.session_state.get('screen', 'menu')}")
         st.write(f"Acción(token): {action}")
-        st.write(f"Macro-área activa: {macro_selected}")
         st.write(f"cloud_mode(token): {cloud_mode}")
         st.write(f"Cache TTL (s): {CACHE_TTL_SEC}")
         st.write(f"MAX_ROWS_TEXT: {MAX_ROWS_TEXT}")
@@ -324,7 +303,7 @@ def render_sidebar() -> Dict[str, Any]:
 
     return dict(
         # global
-        macro_selected=str(macro_selected),
+        macro_selected="Todas",
         action=str(action),
 
         # periodo

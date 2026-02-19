@@ -201,10 +201,27 @@ def screen_historico(
     df_raw = _apply_year_cap(df_raw, int(HIST_YEARS_KEEP))
     df_raw = limit_df(df_raw, MAX_ROWS_TEXT)
 
+    st.subheader("Histórico")
+
+    # Selector de macro-área en la vista principal (no en sidebar)
+    macro_options = ["Todas"]
+    if "macro_area" in df_raw.columns:
+        vals = sorted(a for a in df_raw["macro_area"].dropna().astype(str).unique() if a.strip())
+        macro_options.extend(vals)
+
+    default_macro = st.session_state.get("hist_main_macro", macro_selected if macro_selected in macro_options else "Todas")
+    if default_macro not in macro_options:
+        default_macro = "Todas"
+
+    macro_selected = st.selectbox(
+        "Macro-área para filtrar visualización",
+        options=macro_options,
+        index=macro_options.index(default_macro),
+        key="hist_main_macro",
+    )
+
     df_view = _filter_macro(df_raw, macro_selected)
     df_view = _apply_date_range(df_view, start_date, end_date, date_col="date")
-
-    st.subheader("Histórico")
 
     with st.expander("Filtros activos", expanded=False):
         st.write(f"Macro-área: **{macro_selected}**")
