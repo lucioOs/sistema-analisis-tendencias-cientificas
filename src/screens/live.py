@@ -276,8 +276,9 @@ def screen_live(
     df_raw_full = enforce_schema(df_raw_full, min_text_len=20, drop_duplicates=True)
 
     # =========================================================
-    # 2) Macro filtro global
+    # 2) Macro-área se controla desde el sidebar
     # =========================================================
+    st.subheader("Live (dinámico)")
     df_view_full = _filter_macro(df_raw_full, macro_selected)
 
     # =========================================================
@@ -296,8 +297,6 @@ def screen_live(
             effective_window = int(live_update_days or 14)
 
         df_view_full = _apply_live_window(df_view_full, days=effective_window)
-
-    st.subheader("Live (dinámico)")
 
     with st.expander("Filtros activos", expanded=False):
         st.write(f"Macro-área: **{macro_selected}**")

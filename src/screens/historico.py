@@ -201,10 +201,11 @@ def screen_historico(
     df_raw = _apply_year_cap(df_raw, int(HIST_YEARS_KEEP))
     df_raw = limit_df(df_raw, MAX_ROWS_TEXT)
 
+    st.subheader("Histórico")
+
+    # Macro-área se controla desde el sidebar
     df_view = _filter_macro(df_raw, macro_selected)
     df_view = _apply_date_range(df_view, start_date, end_date, date_col="date")
-
-    st.subheader("Histórico")
 
     with st.expander("Filtros activos", expanded=False):
         st.write(f"Macro-área: **{macro_selected}**")
@@ -222,6 +223,7 @@ def screen_historico(
         return
 
     show_kpis(df_view, freq)
+
     render_wordcloud(
     df_view,
     "Nube de palabras (Histórico)",
