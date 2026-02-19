@@ -203,16 +203,20 @@ def screen_historico(
 
     st.subheader("Histórico")
 
-    # Selector de macro-área en la vista principal (no en sidebar)
+    # Selector principal de macro-área (afecta nube y gráficas)
     macro_options = ["Todas"]
     if "macro_area" in df_raw.columns:
         vals = sorted(a for a in df_raw["macro_area"].dropna().astype(str).unique() if a.strip())
         macro_options.extend(vals)
 
-    default_macro = st.session_state.get("hist_main_macro", macro_selected if macro_selected in macro_options else "Todas")
+    default_macro = st.session_state.get(
+        "hist_main_macro",
+        macro_selected if macro_selected in macro_options else "Todas",
+    )
     if default_macro not in macro_options:
         default_macro = "Todas"
 
+    st.markdown("**Macro-área (afecta nube y gráficas):**")
     macro_selected = st.selectbox(
         "Macro-área para filtrar visualización",
         options=macro_options,
@@ -239,6 +243,7 @@ def screen_historico(
         return
 
     show_kpis(df_view, freq)
+
     render_wordcloud(
     df_view,
     "Nube de palabras (Histórico)",
