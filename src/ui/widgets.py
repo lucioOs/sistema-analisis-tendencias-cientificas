@@ -59,7 +59,7 @@ def top_guide() -> None:
           <div class="muted" style="margin-bottom: 0.25rem;">Visualiza evolución histórica, cambios recientes y predicciones por macro-área.</div>
           <div class="muted">
             <b>Paso 1:</b> Elige <b>Histórico</b> o <b>Live</b> en el menú.<br>
-            <b>Paso 2:</b> Ajusta macro-área, periodo y tipo de análisis en la barra lateral.<br>
+            <b>Paso 2:</b> Elige macro-área en la pantalla principal y usa la barra lateral para periodo/análisis.<br>
             <b>Paso 3:</b> Interpreta KPIs, gráficas y tabla de resultados.
           </div>
         </div>

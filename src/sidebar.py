@@ -116,7 +116,7 @@ def render_sidebar() -> Dict[str, Any]:
     st.markdown("""
     <div class="card">
       <div style="font-weight:700; margin-bottom:0.2rem;">🧭 Cómo usar esta barra</div>
-      <div class="muted">1) Define tipo de análisis. 2) Ajusta periodo. 3) Usa opciones avanzadas solo si lo necesitas.</div>
+      <div class="muted">1) Define tipo de análisis. 2) Ajusta periodo. 3) La macro-área se selecciona en el panel principal.</div>
     </div>
     """, unsafe_allow_html=True)
 
