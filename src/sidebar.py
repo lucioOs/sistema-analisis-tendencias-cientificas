@@ -50,6 +50,7 @@ def _get_macro_areas_from_data() -> list[str]:
 
 
 def _sidebar_help_html() -> str:
+    # Canonical: filtros de datos se controlan desde el sidebar.
     # Canonical: la macro-área se elige en las vistas principales (Histórico/Live).
     return (
         '<div class="card">'
