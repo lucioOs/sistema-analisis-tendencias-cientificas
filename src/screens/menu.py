@@ -84,7 +84,7 @@ def _goto(screen: str, default_action: str = "prediccion") -> None:
 def screen_menu() -> None:
     st.subheader("Menú principal")
 
-    st.write("Selecciona un modo de exploración y revisa el estado del pipeline.")
+    st.markdown("<div class='muted'>Selecciona cómo quieres explorar los datos y verifica si el sistema está listo.</div>", unsafe_allow_html=True)
 
     # -------------------------------------------------------------------------
     # Estado del pipeline
@@ -154,7 +154,7 @@ def screen_menu() -> None:
     # -------------------------------------------------------------------------
     # Navegación principal
     # -------------------------------------------------------------------------
-    st.markdown("### ¿Qué quieres explorar?")
+    st.markdown("### ¿Qué quieres explorar hoy?")
 
     col1, col2 = st.columns(2)
 
@@ -165,7 +165,11 @@ def screen_menu() -> None:
             _goto("historico", default_action="prediccion")
         st.markdown("</div>", unsafe_allow_html=True)
         st.markdown(
-            '<div class="muted">Tendencias de largo plazo y predicción por macro-áreas.</div>',
+            '''<div class="mode-card">
+                <div class="mode-badge">Recomendado para análisis completo</div>
+                <div class="mode-title">Histórico</div>
+                <div class="muted">Explora años de publicaciones, patrones de crecimiento y predicción por macro-áreas.</div>
+            </div>''',
             unsafe_allow_html=True,
         )
         if hist_disabled:
@@ -178,7 +182,11 @@ def screen_menu() -> None:
             _goto("live", default_action="prediccion")
         st.markdown("</div>", unsafe_allow_html=True)
         st.markdown(
-            '<div class="muted">Lo más reciente (actualizable) + predicción por macro-áreas.</div>',
+            '''<div class="mode-card">
+                <div class="mode-badge">Monitoreo reciente</div>
+                <div class="mode-title">Live</div>
+                <div class="muted">Consulta actividad reciente, cambios rápidos y actualización desde fuentes en línea.</div>
+            </div>''',
             unsafe_allow_html=True,
         )
         if live_disabled:
