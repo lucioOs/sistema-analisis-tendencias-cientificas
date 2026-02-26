@@ -8,6 +8,7 @@ import streamlit as st
 
 
 STEP_2_GUIDE = "Ajusta macro-área, periodo y tipo de análisis en la barra lateral."
+STEP_2_GUIDE = "Elige macro-área en la pantalla principal y usa la barra lateral para periodo/análisis."
 
 # =========================
 # Helpers (internos)
