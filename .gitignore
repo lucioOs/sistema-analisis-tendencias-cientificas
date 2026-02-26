@@ -59,6 +59,10 @@ data/raw/
 data/processed/
 data/interim/
 
+# Permitir módulos de código bajo src/data (no datasets)
+!src/data/
+!src/data/*.py
+
 *.parquet
 *.csv
 *.tsv

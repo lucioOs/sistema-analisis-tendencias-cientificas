@@ -276,8 +276,9 @@ def screen_live(
     df_raw_full = enforce_schema(df_raw_full, min_text_len=20, drop_duplicates=True)
 
     # =========================================================
-    # 2) Macro filtro global
+    # 2) Macro-área se controla desde el sidebar
     # =========================================================
+    st.subheader("Live (dinámico)")
     df_view_full = _filter_macro(df_raw_full, macro_selected)
 
     # =========================================================
@@ -296,8 +297,6 @@ def screen_live(
             effective_window = int(live_update_days or 14)
 
         df_view_full = _apply_live_window(df_view_full, days=effective_window)
-
-    st.subheader("Live (dinámico)")
 
     with st.expander("Filtros activos", expanded=False):
         st.write(f"Macro-área: **{macro_selected}**")
@@ -449,17 +448,14 @@ def screen_live(
         download_table(show, filename_prefix=f"live_dynamic_{need_class}_macro")
 
         macro_list = sub["macro_area"].astype(str).tolist()
-        default_macro = macro_list[0] if macro_list else None
-        if macro_selected != "Todas" and macro_selected in macro_list:
-            default_macro = macro_selected
+        if macro_selected == "Todas":
+            st.info("Selecciona una macro-área específica en el sidebar para ver su tendencia.")
+            return
+        if macro_selected not in macro_list:
+            st.info("La macro-área seleccionada en sidebar no está disponible para esta clase en la ventana actual.")
+            return
 
-        macro_pick = st.selectbox(
-            "Macro-área para ver su tendencia",
-            macro_list,
-            index=macro_list.index(default_macro) if (default_macro in macro_list) else 0,
-            key=f"live_dyn_macro_pick_{need_class}",
-        )
-
+        macro_pick = macro_selected
         d = df_macro_live[df_macro_live["macro_area"].astype(str) == str(macro_pick)].sort_values("period")
         if d.empty:
             st.info("No hay serie para la macro-área seleccionada en la ventana actual.")
@@ -568,11 +564,15 @@ def screen_live(
         st.info("No hay macro-áreas disponibles para predicción en la ventana actual.")
         return
 
-    if macro_selected != "Todas" and macro_selected in macro_list:
-        macro_pick = macro_selected
-        st.caption(f"Macro-área seleccionada: **{macro_pick}**")
-    else:
-        macro_pick = st.selectbox("Macro-área a predecir", macro_list, key="live_pred_macro_dyn")
+    if macro_selected == "Todas":
+        st.info("Selecciona una macro-área específica en el sidebar para ejecutar la predicción.")
+        return
+    if macro_selected not in macro_list:
+        st.info("La macro-área seleccionada en sidebar no está disponible en la ventana actual.")
+        return
+
+    macro_pick = macro_selected
+    st.caption(f"Macro-área seleccionada: **{macro_pick}**")
 
     metric = st.selectbox(
         "Métrica",

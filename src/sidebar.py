@@ -5,7 +5,7 @@ import sys
 import time
 from datetime import date
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 import pandas as pd
 import streamlit as st
@@ -32,6 +32,10 @@ def _clear_streamlit_cache() -> None:
         pass
 
 
+
+
+
+
 def _safe_read_parquet(path: Path) -> pd.DataFrame:
     try:
         if not path.exists():
@@ -41,7 +45,7 @@ def _safe_read_parquet(path: Path) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-def _get_macro_areas_from_data() -> List[str]:
+def _get_macro_areas_from_data() -> list[str]:
     processed = Path("data/processed")
 
     df = _safe_read_parquet(processed / "macro_trends_full.parquet")
@@ -58,13 +62,22 @@ def _get_macro_areas_from_data() -> List[str]:
 
     return []
 
+def _sidebar_help_html() -> str:
+    # Canonical: filtros de datos se controlan desde el sidebar.
+    return (
+        '<div class="card">'
+        '<div style="font-weight:700; margin-bottom:0.2rem;">🧭 Cómo usar esta barra</div>'
+        '<div class="muted">1) Define tipo de análisis. 2) Ajusta periodo. '
+        '3) Ajusta opciones avanzadas solo si lo necesitas.</div>'
+        '</div>'
+    )
 
 def _run_live_update(
     days_back: int,
     api_page_size: int,
     api_max_total: int,
     timeout_sec: int = 1800,
-) -> Tuple[int, str, List[str]]:
+) -> Tuple[int, str, list[str]]:
     cmd = [
         sys.executable,
         "-m",
@@ -113,10 +126,12 @@ def render_sidebar() -> Dict[str, Any]:
 
     st.divider()
 
+    st.markdown(_sidebar_help_html(), unsafe_allow_html=True)
+
     # -----------------------------
     # Macro-área (filtro global)
     # -----------------------------
-    st.subheader("Macro-área (filtro PLN)")
+    st.subheader("1) Macro-área")
     macro_areas = _get_macro_areas_from_data()
     options = ["Todas"] + macro_areas if macro_areas else ["Todas"]
 
@@ -130,7 +145,7 @@ def render_sidebar() -> Dict[str, Any]:
         st.session_state.macro_area_selected = "Todas"
 
     macro_selected = st.selectbox(
-        "Selecciona macro-área",
+        "Macro-área a analizar",
         options,
         index=default_idx,
         key="sb_macro_area",
@@ -143,9 +158,9 @@ def render_sidebar() -> Dict[str, Any]:
     # -----------------------------
     # Acción (token consistente)
     # -----------------------------
-    st.subheader("Acción")
+    st.markdown("### 2) Análisis")
     action_ui = st.radio(
-        "¿Qué quieres ver?",
+        "Selecciona análisis",
         ["Predicción", "Creciendo", "Bajando", "Se mantiene", "Comparar"],
         index=0,
         key="sb_action_ui",
@@ -166,10 +181,10 @@ def render_sidebar() -> Dict[str, Any]:
     # -----------------------------
     # Periodo (frecuencia + rango opcional)
     # -----------------------------
-    st.subheader("Periodo")
+    st.subheader("3) Periodo")
 
     freq_label = st.selectbox(
-        "Ver cambios por",
+        "Agrupar resultados por",
         ["Semanas", "Meses", "Días"],
         index=0,
         key="sb_freq_label",
@@ -177,7 +192,7 @@ def render_sidebar() -> Dict[str, Any]:
     freq = "W" if freq_label == "Semanas" else ("M" if freq_label == "Meses" else "D")
 
     min_d, max_d = _safe_date_range_from_hist()
-    use_range = st.toggle("Elegir rango de fechas", value=False, key="sb_use_range")
+    use_range = st.toggle("Usar rango de fechas personalizado", value=False, key="sb_use_range")
 
     start_date: Optional[date] = None
     end_date: Optional[date] = None
@@ -204,10 +219,10 @@ def render_sidebar() -> Dict[str, Any]:
     # -----------------------------
     # Opciones (nube + knobs)
     # -----------------------------
-    st.subheader("Opciones")
+    st.subheader("4) Opciones visuales")
 
     cloud_ui = st.selectbox(
-        "Tipo de nube",
+        "Nube de palabras",
         ["Destacados (TF-IDF)", "Frecuencia"],
         index=0,
         key="sb_cloud_mode",
@@ -215,7 +230,7 @@ def render_sidebar() -> Dict[str, Any]:
     )
     cloud_mode = "tfidf" if cloud_ui.startswith("Destacados") else "freq"
 
-    with st.expander("Ajustes", expanded=False):
+    with st.expander("Ajustes avanzados", expanded=False):
         ngram_max = st.selectbox("Detectar frases de", [1, 2, 3], index=1, key="sb_ngram")
         min_df = st.slider("Frecuencia mínima (min_df)", 1, 10, 2, key="sb_min_df")
 
