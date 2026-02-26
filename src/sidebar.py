@@ -120,6 +120,7 @@ def render_sidebar() -> Dict[str, Any]:
     # -----------------------------
     # Macro-área (filtro global)
     # -----------------------------
+    st.subheader("Macro-área")
     st.subheader("1) Macro-área")
     macro_areas = _get_macro_areas_from_data()
     options = ["Todas"] + macro_areas if macro_areas else ["Todas"]
@@ -147,6 +148,9 @@ def render_sidebar() -> Dict[str, Any]:
     # -----------------------------
     # Acción (token consistente)
     # -----------------------------
+    st.subheader("Análisis")
+    action_ui = st.radio(
+        "Tipo de análisis",
     st.markdown("### 2) Análisis")
     st.subheader("2) Tipo de análisis")
     st.subheader("1) Tipo de análisis")
@@ -211,6 +215,7 @@ def render_sidebar() -> Dict[str, Any]:
     # -----------------------------
     # Opciones (nube + knobs)
     # -----------------------------
+    st.subheader("Opciones visuales")
     st.subheader("4) Opciones visuales")
     st.subheader("3) Opciones visuales")
 
