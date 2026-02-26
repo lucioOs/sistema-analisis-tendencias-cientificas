@@ -279,6 +279,29 @@ def screen_live(
     # 2) Macro-área se controla desde el sidebar
     # =========================================================
     st.subheader("Live (dinámico)")
+    # 2) Selector principal de macro-área (afecta nube y gráficas)
+    # =========================================================
+    macro_options = ["Todas"]
+    if "macro_area" in df_raw_full.columns:
+        vals = sorted(a for a in df_raw_full["macro_area"].dropna().astype(str).unique() if a.strip())
+        macro_options.extend(vals)
+
+    default_macro = st.session_state.get(
+        "live_main_macro",
+        macro_selected if macro_selected in macro_options else "Todas",
+    )
+    if default_macro not in macro_options:
+        default_macro = "Todas"
+
+    st.subheader("Live (dinámico)")
+    st.markdown("**Macro-área (afecta nube y gráficas):**")
+    macro_selected = st.selectbox(
+        "Macro-área para filtrar visualización",
+        options=macro_options,
+        index=macro_options.index(default_macro),
+        key="live_main_macro",
+    )
+
     df_view_full = _filter_macro(df_raw_full, macro_selected)
 
     # =========================================================

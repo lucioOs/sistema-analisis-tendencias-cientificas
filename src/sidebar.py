@@ -48,27 +48,16 @@ def _safe_read_parquet(path: Path) -> pd.DataFrame:
 def _get_macro_areas_from_data() -> list[str]:
     processed = Path("data/processed")
 
-    df = _safe_read_parquet(processed / "macro_trends_full.parquet")
-    if not df.empty and "macro_area" in df.columns:
-        return sorted(a for a in df["macro_area"].dropna().astype(str).unique() if a.strip())
-
-    df = _safe_read_parquet(processed / "clean.parquet")
-    if not df.empty and "macro_area" in df.columns:
-        return sorted(a for a in df["macro_area"].dropna().astype(str).unique() if a.strip())
-
-    df = _safe_read_parquet(Path(LIVE_DATASET))
-    if not df.empty and "macro_area" in df.columns:
-        return sorted(a for a in df["macro_area"].dropna().astype(str).unique() if a.strip())
-
-    return []
 
 def _sidebar_help_html() -> str:
     # Canonical: filtros de datos se controlan desde el sidebar.
+    # Canonical: la macro-área se elige en las vistas principales (Histórico/Live).
     return (
         '<div class="card">'
         '<div style="font-weight:700; margin-bottom:0.2rem;">🧭 Cómo usar esta barra</div>'
         '<div class="muted">1) Define tipo de análisis. 2) Ajusta periodo. '
         '3) Ajusta opciones avanzadas solo si lo necesitas.</div>'
+        '3) La macro-área se selecciona en el panel principal.</div>'
         '</div>'
     )
 
@@ -159,6 +148,8 @@ def render_sidebar() -> Dict[str, Any]:
     # Acción (token consistente)
     # -----------------------------
     st.markdown("### 2) Análisis")
+    st.subheader("2) Tipo de análisis")
+    st.subheader("1) Tipo de análisis")
     action_ui = st.radio(
         "Selecciona análisis",
         ["Predicción", "Creciendo", "Bajando", "Se mantiene", "Comparar"],
@@ -182,6 +173,7 @@ def render_sidebar() -> Dict[str, Any]:
     # Periodo (frecuencia + rango opcional)
     # -----------------------------
     st.subheader("3) Periodo")
+    st.subheader("2) Periodo")
 
     freq_label = st.selectbox(
         "Agrupar resultados por",
@@ -220,6 +212,7 @@ def render_sidebar() -> Dict[str, Any]:
     # Opciones (nube + knobs)
     # -----------------------------
     st.subheader("4) Opciones visuales")
+    st.subheader("3) Opciones visuales")
 
     cloud_ui = st.selectbox(
         "Nube de palabras",
@@ -258,7 +251,6 @@ def render_sidebar() -> Dict[str, Any]:
         st.write(f"App: {APP_TITLE}")
         st.write(f"Pantalla: {st.session_state.get('screen', 'menu')}")
         st.write(f"Acción(token): {action}")
-        st.write(f"Macro-área activa: {macro_selected}")
         st.write(f"cloud_mode(token): {cloud_mode}")
         st.write(f"Cache TTL (s): {CACHE_TTL_SEC}")
         st.write(f"MAX_ROWS_TEXT: {MAX_ROWS_TEXT}")
@@ -339,7 +331,7 @@ def render_sidebar() -> Dict[str, Any]:
 
     return dict(
         # global
-        macro_selected=str(macro_selected),
+        macro_selected="Todas",
         action=str(action),
 
         # periodo
