@@ -147,6 +147,7 @@ def render_sidebar() -> Dict[str, Any]:
     # -----------------------------
     # Acción (token consistente)
     # -----------------------------
+    st.markdown("### 2) Análisis")
     st.subheader("2) Tipo de análisis")
     st.subheader("1) Tipo de análisis")
     action_ui = st.radio(
